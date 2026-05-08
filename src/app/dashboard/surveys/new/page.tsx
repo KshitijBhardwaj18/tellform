@@ -1,29 +1,27 @@
 import Link from "next/link";
-import { notFound, redirect } from "next/navigation";
+import { redirect } from "next/navigation";
 import { auth } from "@/auth";
-import { getOwnedProject } from "@/lib/access";
+import { prisma } from "@/lib/prisma";
+import { getOwnedOrganization } from "@/lib/access";
 import { CreateSurveyForm } from "@/components/CreateSurveyForm";
 
-export default async function CreateSurveyPage({
-  params,
-}: {
-  params: Promise<{ projectId: string }>;
-}) {
-  const { projectId } = await params;
+export default async function CreateSurveyPage() {
   const session = await auth();
   if (!session?.user?.id) redirect("/login");
 
-  const project = await getOwnedProject(session.user.id, projectId);
-  if (!project) notFound();
+  const org = await getOwnedOrganization(session.user.id);
+  const snippetCount = org
+    ? await prisma.snippet.count({ where: { organizationId: org.id } })
+    : 0;
 
   return (
     <div className="space-y-8 max-w-2xl">
       <div>
         <Link
-          href={`/dashboard/projects/${project.id}`}
+          href="/dashboard"
           className="text-sm text-gray-500 hover:text-gray-900 transition"
         >
-          ← {project.name}
+          ← Surveys
         </Link>
       </div>
       <div>
@@ -32,7 +30,7 @@ export default async function CreateSurveyPage({
           Describe what you want to learn. AI will generate the questions.
         </p>
       </div>
-      <CreateSurveyForm projectId={project.id} />
+      <CreateSurveyForm hasKnowledgeBase={snippetCount > 0} />
     </div>
   );
 }

@@ -7,7 +7,9 @@ import { signOut } from "next-auth/react";
 type NavItem = { href: string; label: string };
 
 const items: NavItem[] = [
-  { href: "/dashboard", label: "Projects" },
+  { href: "/dashboard", label: "Surveys" },
+  { href: "/dashboard/quizzes", label: "Quizzes" },
+  { href: "/dashboard/knowledge", label: "Knowledge" },
 ];
 
 export function Sidebar({ userName, userEmail }: { userName?: string | null; userEmail?: string | null }) {

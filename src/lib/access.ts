@@ -7,16 +7,23 @@ export async function getOwnedOrganization(userId: string) {
   });
 }
 
-export async function getOwnedProject(userId: string, projectId: string) {
-  return prisma.project.findFirst({
-    where: { id: projectId, organization: { ownerId: userId } },
+export async function getOwnedSurvey(userId: string, surveyId: string) {
+  return prisma.survey.findFirst({
+    where: { id: surveyId, organization: { ownerId: userId } },
     include: { organization: true },
   });
 }
 
-export async function getOwnedSurvey(userId: string, surveyId: string) {
-  return prisma.survey.findFirst({
-    where: { id: surveyId, project: { organization: { ownerId: userId } } },
-    include: { project: true },
+export async function getOwnedQuiz(userId: string, quizId: string) {
+  return prisma.quiz.findFirst({
+    where: { id: quizId, organization: { ownerId: userId } },
+    include: { organization: true },
+  });
+}
+
+export async function getOwnedSnippet(userId: string, snippetId: string) {
+  return prisma.snippet.findFirst({
+    where: { id: snippetId, organization: { ownerId: userId } },
+    include: { organization: true },
   });
 }

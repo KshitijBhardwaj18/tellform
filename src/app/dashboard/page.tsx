@@ -3,18 +3,17 @@ import { redirect } from "next/navigation";
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { getOwnedOrganization } from "@/lib/access";
-import { CreateProjectForm } from "@/components/CreateProjectForm";
 
 export default async function DashboardPage() {
   const session = await auth();
   if (!session?.user?.id) redirect("/login");
 
   const org = await getOwnedOrganization(session.user.id);
-  const projects = org
-    ? await prisma.project.findMany({
+  const surveys = org
+    ? await prisma.survey.findMany({
         where: { organizationId: org.id },
         orderBy: { createdAt: "desc" },
-        include: { _count: { select: { surveys: true } } },
+        include: { _count: { select: { responses: true } } },
       })
     : [];
 
@@ -22,29 +21,54 @@ export default async function DashboardPage() {
     <div className="space-y-8">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-semibold tracking-tight">Projects</h1>
+          <h1 className="text-2xl font-semibold tracking-tight">Surveys</h1>
           <p className="text-sm text-gray-500 mt-1">
-            Group surveys by project to keep things organized.
+            Open-ended conversational forms.
           </p>
         </div>
-        <CreateProjectForm />
+        <Link
+          href="/dashboard/surveys/new"
+          className="bg-black text-white text-sm px-4 py-2 rounded-md hover:opacity-90 transition"
+        >
+          New survey
+        </Link>
       </div>
 
-      {projects.length === 0 ? (
+      {surveys.length === 0 ? (
         <div className="border border-dashed border-gray-300 rounded-lg p-12 text-center">
-          <p className="text-gray-500">No projects yet. Create your first one.</p>
+          <p className="text-gray-500">
+            No surveys yet. Create your first AI-generated survey.
+          </p>
         </div>
       ) : (
-        <ul className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-          {projects.map((p) => (
-            <li key={p.id}>
+        <ul className="bg-white border border-gray-200 rounded-lg divide-y divide-gray-200">
+          {surveys.map((s) => (
+            <li key={s.id}>
               <Link
-                href={`/dashboard/projects/${p.id}`}
-                className="block bg-white border border-gray-200 rounded-lg p-5 hover:border-gray-400 transition"
+                href={`/dashboard/surveys/${s.id}`}
+                className="flex items-center justify-between px-5 py-4 hover:bg-gray-50 transition"
               >
-                <div className="font-medium text-gray-900">{p.name}</div>
-                <div className="text-sm text-gray-500 mt-1">
-                  {p._count.surveys} {p._count.surveys === 1 ? "survey" : "surveys"}
+                <div>
+                  <div className="font-medium text-gray-900">{s.title}</div>
+                  <div className="text-xs text-gray-500 mt-0.5 flex items-center gap-2">
+                    <span
+                      className={`px-1.5 py-0.5 rounded text-[10px] uppercase tracking-wide ${
+                        s.kind === "dynamic"
+                          ? "bg-purple-50 text-purple-700"
+                          : "bg-gray-100 text-gray-600"
+                      }`}
+                    >
+                      {s.kind === "dynamic" ? "Dynamic" : "Scripted"}
+                    </span>
+                    <span>
+                      {s.mode === "voice" ? "Voice" : "Text"} · Created{" "}
+                      {new Date(s.createdAt).toLocaleDateString()}
+                    </span>
+                  </div>
+                </div>
+                <div className="text-sm text-gray-500">
+                  {s._count.responses}{" "}
+                  {s._count.responses === 1 ? "response" : "responses"}
                 </div>
               </Link>
             </li>

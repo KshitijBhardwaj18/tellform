@@ -56,41 +56,38 @@ model VerificationToken {
 }
 
 model Organization {
-  id        String    @id @default(cuid())
+  id        String   @id @default(cuid())
   name      String
   ownerId   String
-  createdAt DateTime  @default(now())
+  createdAt DateTime @default(now())
 
   owner    User      @relation(fields: [ownerId], references: [id], onDelete: Cascade)
-  projects Project[]
+  surveys  Survey[]
+  quizzes  Quiz[]
+  snippets Snippet[]
 
   @@index([ownerId])
 }
 
-model Project {
+model Survey {
   id             String   @id @default(cuid())
-  name           String
+  title          String
+  questions      Json
+  mode           String   @default("text")
+  kind           String   @default("scripted")
+  objective      String?
+  anchors        Json?
+  checkpoints    Json?
+  budget         Json?
+  stopConditions Json?
+  persona        String?
   organizationId String
   createdAt      DateTime @default(now())
 
   organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
-  surveys      Survey[]
+  responses    Response[]
 
   @@index([organizationId])
-}
-
-model Survey {
-  id        String   @id @default(cuid())
-  title     String
-  questions Json
-  mode      String   @default("text")
-  projectId String
-  createdAt DateTime @default(now())
-
-  project   Project    @relation(fields: [projectId], references: [id], onDelete: Cascade)
-  responses Response[]
-
-  @@index([projectId])
 }
 
 model Response {
@@ -99,9 +96,68 @@ model Response {
   respondentName  String
   respondentEmail String
   answers         Json
+  state           Json?
+  transcript      Json?
+  summary         Json?
+  completedAt     DateTime?
   createdAt       DateTime @default(now())
 
   survey Survey @relation(fields: [surveyId], references: [id], onDelete: Cascade)
 
   @@index([surveyId])
+}
+
+model Quiz {
+  id             String   @id @default(cuid())
+  title          String
+  questions      Json
+  mode           String   @default("text")
+  organizationId String
+  createdAt      DateTime @default(now())
+
+  organization Organization  @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  attempts     QuizAttempt[]
+
+  @@index([organizationId])
+}
+
+model QuizAttempt {
+  id              String   @id @default(cuid())
+  quizId          String
+  respondentName  String
+  respondentEmail String
+  answers         Json
+  score           Json
+  createdAt       DateTime @default(now())
+
+  quiz Quiz @relation(fields: [quizId], references: [id], onDelete: Cascade)
+
+  @@index([quizId])
+}
+
+model Snippet {
+  id             String   @id @default(cuid())
+  organizationId String
+  title          String
+  contentHtml    String   @db.Text
+  contentText    String   @db.Text
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  organization Organization   @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  chunks       SnippetChunk[]
+
+  @@index([organizationId])
+}
+
+model SnippetChunk {
+  id        String @id @default(cuid())
+  snippetId String
+  ordinal   Int
+  content   String @db.Text
+  embedding Json
+
+  snippet Snippet @relation(fields: [snippetId], references: [id], onDelete: Cascade)
+
+  @@index([snippetId])
 }

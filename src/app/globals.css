@@ -28,6 +28,53 @@ html, body {
   animation: fadeIn 320ms ease-out both;
 }
 
+/* ---------- TipTap snippet editor ---------- */
+
+.tiptap p {
+  margin: 0.5rem 0;
+}
+.tiptap h2 {
+  font-size: 1.25rem;
+  font-weight: 600;
+  margin: 1rem 0 0.5rem;
+}
+.tiptap ul,
+.tiptap ol {
+  padding-left: 1.5rem;
+  margin: 0.5rem 0;
+}
+.tiptap ul { list-style: disc; }
+.tiptap ol { list-style: decimal; }
+.tiptap blockquote {
+  border-left: 3px solid #e5e7eb;
+  padding-left: 0.75rem;
+  color: #4b5563;
+  margin: 0.75rem 0;
+}
+.tiptap code {
+  background: #f3f4f6;
+  border-radius: 0.25rem;
+  padding: 0.1rem 0.3rem;
+  font-size: 0.875em;
+}
+.tiptap pre {
+  background: #0b0b14;
+  color: #e5e7eb;
+  border-radius: 0.5rem;
+  padding: 0.75rem 1rem;
+  overflow-x: auto;
+  font-size: 0.85rem;
+  margin: 0.75rem 0;
+}
+.tiptap pre code {
+  background: transparent;
+  padding: 0;
+  color: inherit;
+}
+.tiptap strong { font-weight: 600; }
+.tiptap em { font-style: italic; }
+.tiptap a { color: #2563eb; text-decoration: underline; }
+
 /* ---------- Voice orb ---------- */
 
 .voice-orb {
